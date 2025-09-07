@@ -2,8 +2,8 @@ import React from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
-import Achievements from './components/Achievements';
-import TeamStructure from './components/TeamStructure';
+import DynamicAchievements from './components/DynamicAchievements';
+import DynamicTeamStructure from './components/DynamicTeamStructure';
 import JoinTeam from './components/JoinTeam';
 import TechFocus from './components/TechFocus';
 import Contact from './components/Contact';
@@ -18,8 +18,8 @@ function App() {
       <main className="relative z-10">
         <Hero />
         <About />
-        <Achievements />
-        <TeamStructure />
+        <DynamicAchievements />
+        <DynamicTeamStructure />
         <JoinTeam />
         <TechFocus />
         <Contact />

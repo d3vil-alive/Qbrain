@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { sendContactEmail, saveContactMessage } from '../config/emailjs';
+import { saveContactMessage as saveToFirebase } from '../services/firebaseService';
 import { 
   MessageSquare, 
   Mail, 
@@ -31,15 +34,33 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setSubmitted(true);
-    setIsSubmitting(false);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    
-    // Reset success message after 5 seconds
-    setTimeout(() => setSubmitted(false), 5000);
+    try {
+      // Save to Firebase
+      const saveResult = await saveToFirebase(formData);
+      
+      if (saveResult.success) {
+        // Send emails
+        const emailResult = await sendContactEmail(formData);
+        
+        if (emailResult.success) {
+          setSubmitted(true);
+          setFormData({ name: '', email: '', subject: '', message: '' });
+          toast.success('Message sent successfully!');
+          
+          // Reset success message after 5 seconds
+          setTimeout(() => setSubmitted(false), 5000);
+        } else {
+          toast.error('Message saved but email sending failed');
+        }
+      } else {
+        toast.error('Failed to send message');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast.error('An error occurred while sending your message');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const subjects = [

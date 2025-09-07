@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { sendApplicationEmail } from '../config/emailjs';
+import { saveApplication } from '../services/firebaseService';
 import { ChevronRight, ChevronLeft, Upload, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import ApplicationForm from './ApplicationForm';
 import TechnicalQuiz from './TechnicalQuiz';
@@ -38,6 +41,34 @@ const JoinTeam = () => {
       ...prev,
       ...stepData
     }));
+    
+    // If this is the final step (interview scheduled), save the application
+    if (stepData.interviewSlot && currentStep === steps.length) {
+      handleApplicationSubmit();
+    }
+  };
+
+  const handleApplicationSubmit = async () => {
+    try {
+      // Save to Firebase
+      const saveResult = await saveApplication(applicationData);
+      
+      if (saveResult.success) {
+        // Send emails
+        const emailResult = await sendApplicationEmail(applicationData);
+        
+        if (emailResult.success) {
+          toast.success('Application submitted successfully!');
+        } else {
+          toast.error('Application saved but email sending failed');
+        }
+      } else {
+        toast.error('Failed to submit application');
+      }
+    } catch (error) {
+      console.error('Application submission error:', error);
+      toast.error('An error occurred while submitting your application');
+    }
   };
 
   const CurrentComponent = steps.find(step => step.id === currentStep)?.component || ApplicationForm;
