@@ -16,6 +16,9 @@ import TeamMemberManager from './components/TeamMemberManager';
 import HackathonManager from './components/HackathonManager';
 import ApplicationManager from './components/ApplicationManager';
 import ContactManager from './components/ContactManager';
+import BlogManager from './components/BlogManager';
+import UICustomizer from './components/UICustomizer';
+import AchievementManager from './components/AchievementManager';
 import { getApplications, getContactMessages, getTeamMembers, getHackathons } from '../services/firebaseService';
 
 const AdminDashboard = () => {
@@ -64,8 +67,11 @@ const AdminDashboard = () => {
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'team', label: 'Team Members', icon: Users },
     { id: 'hackathons', label: 'Hackathons', icon: Trophy },
+    { id: 'achievements', label: 'Achievements', icon: Trophy },
+    { id: 'blogs', label: 'Blogs', icon: MessageSquare },
     { id: 'applications', label: 'Applications', icon: UserPlus },
-    { id: 'messages', label: 'Messages', icon: MessageSquare }
+    { id: 'messages', label: 'Messages', icon: Mail },
+    { id: 'ui', label: 'UI Customizer', icon: BarChart3 }
   ];
 
   const renderContent = () => {
@@ -122,10 +128,16 @@ const AdminDashboard = () => {
         return <TeamMemberManager onUpdate={fetchStats} />;
       case 'hackathons':
         return <HackathonManager onUpdate={fetchStats} />;
+      case 'achievements':
+        return <AchievementManager onUpdate={fetchStats} />;
+      case 'blogs':
+        return <BlogManager onUpdate={fetchStats} />;
       case 'applications':
         return <ApplicationManager />;
       case 'messages':
         return <ContactManager />;
+      case 'ui':
+        return <UICustomizer />;
       default:
         return null;
     }

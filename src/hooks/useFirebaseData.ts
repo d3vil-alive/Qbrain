@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTeamMembers, getHackathons } from '../services/firebaseService';
+import { getTeamMembers, getHackathons, getAchievements } from '../services/firebaseService';
 
 export const useTeamMembers = () => {
   const [members, setMembers] = useState([]);
@@ -47,4 +47,28 @@ export const useHackathons = () => {
   }, []);
 
   return { hackathons, loading, error, refetch: fetchHackathons };
+};
+
+export const useAchievements = () => {
+  const [achievements, setAchievements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchAchievements = async () => {
+    setLoading(true);
+    const result = await getAchievements();
+    if (result.success) {
+      setAchievements(result.data);
+      setError(null);
+    } else {
+      setError(result.error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAchievements();
+  }, []);
+
+  return { achievements, loading, error, refetch: fetchAchievements };
 };

@@ -6,6 +6,7 @@ import DynamicAchievements from './components/DynamicAchievements';
 import DynamicTeamStructure from './components/DynamicTeamStructure';
 import JoinTeam from './components/JoinTeam';
 import TechFocus from './components/TechFocus';
+import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ParticleBackground from './components/ParticleBackground';
@@ -22,6 +23,7 @@ function App() {
         <DynamicTeamStructure />
         <JoinTeam />
         <TechFocus />
+        <FAQ />
         <Contact />
       </main>
       <Footer />

@@ -219,3 +219,199 @@ export const getContactMessages = async () => {
     return { success: false, error };
   }
 };
+
+// Blogs
+export const addBlog = async (blogData: any, imageFile?: File) => {
+  try {
+    let featuredImage = '';
+    
+    if (imageFile) {
+      const imageRef = ref(storage, `blogs/${uuidv4()}-${imageFile.name}`);
+      const snapshot = await uploadBytes(imageRef, imageFile);
+      featuredImage = await getDownloadURL(snapshot.ref);
+    }
+
+    const docRef = await addDoc(collection(db, 'blogs'), {
+      ...blogData,
+      featuredImage,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now()
+    });
+    
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error adding blog:', error);
+    return { success: false, error };
+  }
+};
+
+export const getBlogs = async () => {
+  try {
+    const q = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const blogs = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return { success: true, data: blogs };
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    return { success: false, error };
+  }
+};
+
+export const updateBlog = async (id: string, blogData: any, imageFile?: File) => {
+  try {
+    let updateData = { ...blogData, updatedAt: Timestamp.now() };
+    
+    if (imageFile) {
+      const imageRef = ref(storage, `blogs/${uuidv4()}-${imageFile.name}`);
+      const snapshot = await uploadBytes(imageRef, imageFile);
+      updateData.featuredImage = await getDownloadURL(snapshot.ref);
+    }
+
+    await updateDoc(doc(db, 'blogs', id), updateData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating blog:', error);
+    return { success: false, error };
+  }
+};
+
+export const deleteBlog = async (id: string, featuredImage?: string) => {
+  try {
+    if (featuredImage) {
+      const imageRef = ref(storage, featuredImage);
+      await deleteObject(imageRef);
+    }
+    
+    await deleteDoc(doc(db, 'blogs', id));
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting blog:', error);
+    return { success: false, error };
+  }
+};
+
+// Achievements
+export const addAchievement = async (achievementData: any, imageFiles?: File[]) => {
+  try {
+    let images: string[] = [];
+    
+    if (imageFiles && imageFiles.length > 0) {
+      for (const file of imageFiles) {
+        const imageRef = ref(storage, `achievements/${uuidv4()}-${file.name}`);
+        const snapshot = await uploadBytes(imageRef, file);
+        const imageUrl = await getDownloadURL(snapshot.ref);
+        images.push(imageUrl);
+      }
+    }
+
+    const docRef = await addDoc(collection(db, 'achievements'), {
+      ...achievementData,
+      images,
+      createdAt: Timestamp.now()
+    });
+    
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error adding achievement:', error);
+    return { success: false, error };
+  }
+};
+
+export const getAchievements = async () => {
+  try {
+    const q = query(collection(db, 'achievements'), orderBy('date', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const achievements = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return { success: true, data: achievements };
+  } catch (error) {
+    console.error('Error fetching achievements:', error);
+    return { success: false, error };
+  }
+};
+
+export const updateAchievement = async (id: string, achievementData: any, imageFiles?: File[]) => {
+  try {
+    let updateData = { ...achievementData };
+    
+    if (imageFiles && imageFiles.length > 0) {
+      let images: string[] = [];
+      for (const file of imageFiles) {
+        const imageRef = ref(storage, `achievements/${uuidv4()}-${file.name}`);
+        const snapshot = await uploadBytes(imageRef, file);
+        const imageUrl = await getDownloadURL(snapshot.ref);
+        images.push(imageUrl);
+      }
+      updateData.images = images;
+    }
+
+    await updateDoc(doc(db, 'achievements', id), updateData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating achievement:', error);
+    return { success: false, error };
+  }
+};
+
+export const deleteAchievement = async (id: string, images?: string[]) => {
+  try {
+    if (images && images.length > 0) {
+      for (const imageUrl of images) {
+        const imageRef = ref(storage, imageUrl);
+        await deleteObject(imageRef);
+      }
+    }
+    
+    await deleteDoc(doc(db, 'achievements', id));
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting achievement:', error);
+    return { success: false, error };
+  }
+};
+
+// UI Settings
+export const getUISettings = async () => {
+  try {
+    const docRef = doc(db, 'settings', 'ui');
+    const docSnap = await getDocs(query(collection(db, 'settings'), where('__name__', '==', 'ui')));
+    
+    if (!docSnap.empty) {
+      const data = docSnap.docs[0].data();
+      return { success: true, data };
+    }
+    return { success: true, data: null };
+  } catch (error) {
+    console.error('Error fetching UI settings:', error);
+    return { success: false, error };
+  }
+};
+
+export const updateUISettings = async (settings: any) => {
+  try {
+    const docRef = doc(db, 'settings', 'ui');
+    await updateDoc(docRef, {
+      ...settings,
+      updatedAt: Timestamp.now()
+    });
+    return { success: true };
+  } catch (error) {
+    // If document doesn't exist, create it
+    try {
+      await addDoc(collection(db, 'settings'), {
+        ...settings,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
+      });
+      return { success: true };
+    } catch (createError) {
+      console.error('Error updating UI settings:', createError);
+      return { success: false, error: createError };
+    }
+  }
+};

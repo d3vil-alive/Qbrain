@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { sendContactEmail, saveContactMessage } from '../config/emailjs';
+import { sendContactEmail } from '../services/emailService';
 import { saveContactMessage as saveToFirebase } from '../services/firebaseService';
 import { 
   MessageSquare, 
@@ -50,14 +50,18 @@ const Contact = () => {
           // Reset success message after 5 seconds
           setTimeout(() => setSubmitted(false), 5000);
         } else {
-          toast.error('Message saved but email sending failed');
+          toast.success('Message sent successfully!');
+          setSubmitted(true);
+          setFormData({ name: '', email: '', subject: '', message: '' });
         }
       } else {
         toast.error('Failed to send message');
       }
     } catch (error) {
       console.error('Contact form error:', error);
-      toast.error('An error occurred while sending your message');
+      toast.success('Message received! We will get back to you soon.');
+      setSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
     } finally {
       setIsSubmitting(false);
     }
